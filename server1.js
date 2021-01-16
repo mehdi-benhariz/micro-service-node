@@ -10,22 +10,27 @@ app.use(express.urlencoded({extended:true}));
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
 
-
 // app.get('/', (req, res) => res.send('Hello World!'))
+
 //get a one
 app.get('/one',async (req, res) => {
     const {id} = req.query;
     tId=parseInt(id);
-    const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${tId}`,{method:'GET'});
-    const todo = await response.json();
-   res.send(todo); 
+    fetch(`https://jsonplaceholder.typicode.com/todos/${tId}`,{method:'GET'})
+    .then(data=>data.json())
+    .then(todo=>res.send(todo))
+    .catch(err=>console.log(err))
+    
 });
+
 //get all
 app.get('/', async(req, res) => {
-  const response = await fetch(`https://jsonplaceholder.typicode.com/todos/`,{method:'GET'});
-  const todos = await response.json();
-
+ fetch(`https://jsonplaceholder.typicode.com/todos/`,{method:'GET'})
+ .then(data=>data.json())
+ .then(todos=>{
   res.send(todos.slice(0,11));
+ })
+  .catch(err=>console.log(err))  
 });
 
 //delete
@@ -36,6 +41,7 @@ app.delete('/', (req, res,next) => {
     .then(()=>next())
     .catch((err)=>send(err))
 });
+
 // //create
 app.post('/', (req, res,next) => {
   const newT = req.body;

@@ -9,7 +9,7 @@ const bookRoute = require('../routes/bookRoute');
 
 app.use(morgan('combined'));
 
-app.use('/book', bookRoute);
+app.use('/todo', bookRoute);
 app.use(bodyParser.urlencoded({ extended: true }))
 
 // parse requests of content-type - application/json
