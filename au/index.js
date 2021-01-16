@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 const morgan = require('morgan')
 const bodyParser = require('body-parser');
 
-const bookRoute = require('./routes/bookRoute');
+const bookRoute = require('../routes/bookRoute');
 
 app.use(morgan('combined'));
 

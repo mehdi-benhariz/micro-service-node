@@ -1,50 +1,76 @@
 const express = require('express')
 const app = express()
 const port = 3001
-const fs = require('fs')
+const fetch = require('node-fetch')
 
-let books =  JSON.parse(fs.readFileSync('books.json'));
-console.log(books)
+
+// Parse URL-encoded bodies (as sent by HTML forms)
+app.use(express.urlencoded({extended:true}));
+
+// Parse JSON bodies (as sent by API clients)
+app.use(express.json());
+
+
 // app.get('/', (req, res) => res.send('Hello World!'))
 //get a one
-app.get('/one', (req, res) => {
+app.get('/one',async (req, res) => {
     const {id} = req.query;
-    bId=parseInt(id)
-    book = books.find((b)=>b.id===bId);
-   res.send(book); 
+    tId=parseInt(id);
+    const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${tId}`,{method:'GET'});
+    const todo = await response.json();
+   res.send(todo); 
 });
 //get all
-app.get('/', (req, res) => {
-    res.send(books);
+app.get('/', async(req, res) => {
+  const response = await fetch(`https://jsonplaceholder.typicode.com/todos/`,{method:'GET'});
+  const todos = await response.json();
+
+  res.send(todos.slice(0,11));
 });
 
 //delete
-app.delete('/', (req, res) => {
+app.delete('/', (req, res,next) => {
     const {id} = req.query;
-    bId=parseInt(id)
-    console.log({books})
-    const newbooks = books.find((b)=>b.id!==bId);
-    fs.writeFileSync('books.json', newbooks);
+    tId=parseInt(id)
+    fetch(`https://jsonplaceholder.typicode.com/todos/${tId}`,{method:'DELETE'})
+    .then(()=>next())
+    .catch((err)=>send(err))
 });
-//create
-app.post('/', (req, res) => {
-    let book={
-        "id":3,
-        "name":"dsf"
-    }
-    console.log("test")
-    const aux = [...books,book]
-   console.log( aux )    
-    fs.writeFileSync('books.json', [...books,book]  );
-    const {book}=req;
-    //  book = {...book,id:books.length()}
-    // books.push(book);
-    console.log("created")
+// //create
+app.post('/', (req, res,next) => {
+  const newT = req.body;
+
+  fetch('https://jsonplaceholder.typicode.com/todos', {
+  method: 'POST',
+  body: JSON.stringify(newT),
+  headers: {
+    'Content-type': 'application/json; charset=UTF-8',
+  },
+})
+  .then((response) => response.json())
+  .then((json) => {
+    res.send(json)
+    next();
+  });
 
 });
-//update
-app.put('/', (req, res) => {
-    
+// //update
+app.put('/', (req, res,next) => {
+  const newT = req.body;
+  const {id}=req.query;
+  const tId = parseInt(id)
+  fetch(`https://jsonplaceholder.typicode.com/todos/${tId}`, {
+  method: 'PUT',
+  body: JSON.stringify(newT),
+  headers: {
+    'Content-type': 'application/json; charset=UTF-8',
+  },
+})
+  .then((response) => response.json())
+  .then((json) => {
+    res.send(json)
+    next();
+  }); 
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
